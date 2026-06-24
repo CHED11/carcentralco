@@ -3,7 +3,8 @@ import type {} from "@tanstack/react-start";
 import { products } from "@/data/products";
 import { collections } from "@/data/collections";
 
-const BASE_URL = "https://id-preview--31d97b11-3876-4ceb-a926-a6555999f578.lovable.app";
+// Set SITE_URL in your Vercel project env to your production domain.
+const BASE_URL = process.env.SITE_URL ?? "https://your-production-domain.com";
 
 interface SitemapEntry {
   path: string;
