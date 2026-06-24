@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { products, formatPrice } from "@/data/products";
-import { buildStripeKey, getStripeLink } from "@/data/stripeLinks";
+import { products, formatPrice, getStripeLink } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 
 export function FeaturedProduct() {
@@ -13,11 +12,10 @@ export function FeaturedProduct() {
   );
   const [frameCode, setFrameCode] = useState(product.frames[0].code);
 
-  const stripeKey = useMemo(
-    () => buildStripeKey(product.productKey, sizeCode, frameCode),
-    [product.productKey, sizeCode, frameCode],
+  const stripeUrl = useMemo(
+    () => getStripeLink(product, sizeCode, frameCode),
+    [product, sizeCode, frameCode],
   );
-  const stripeUrl = getStripeLink(stripeKey);
   const available = Boolean(stripeUrl);
 
   const handleBuy = () => {

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Flame, Star, Heart } from "lucide-react";
 import { products, formatPrice } from "@/data/products";
-import { collections } from "@/data/collections";
+import { getCollection } from "@/data/collections";
 import { Reveal } from "@/components/Reveal";
 
 const popularProducts = products.slice(0, 6);
@@ -63,7 +63,7 @@ export function PopularProducts() {
 }
 
 function PopularProductCard({ product }: { product: (typeof products)[number] }) {
-  const collection = collections.find((c) => c.id === product.collection);
+  const collection = getCollection(product.collection);
 
   return (
     <motion.div
