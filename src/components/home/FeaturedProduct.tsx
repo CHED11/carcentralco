@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { products, formatPrice, getStripeLink } from "@/data/products";
+import { availableProducts, formatPrice, getStripeLink } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 
 export function FeaturedProduct() {
-  const product = products[0];
+  const product = availableProducts[0];
 
   const [sizeCode, setSizeCode] = useState(
     product.sizes.find((s) => s.popular)?.code ?? product.sizes[0].code,

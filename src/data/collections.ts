@@ -1,6 +1,5 @@
 import type { CollectionId } from "./products";
 import { products } from "./products";
-import { comingSoon } from "./comingSoon";
 
 export type Collection = {
   id: CollectionId;
@@ -94,21 +93,14 @@ export const getCollection = (id: CollectionId): Collection =>
 export const collections = registry;
 
 /**
- * Every collection that actually has products or upcoming items — registry
- * entries first (in their authored order), then any extra marques. Drives the
- * sitemap and "explore more" links, so new collections appear automatically.
+ * All curated collections (registry order) plus any extra marque introduced by
+ * a product. Drives the sitemap and "explore more" links, so new collections
+ * appear automatically.
  */
 export const listCollections = (): Collection[] => {
-  const used = new Set<CollectionId>();
-  for (const p of products) used.add(p.collection);
-  for (const c of comingSoon) used.add(c.collection);
-
-  const ordered: CollectionId[] = registry
-    .filter((c) => used.has(c.id))
-    .map((c) => c.id);
-  for (const id of used) if (!ordered.includes(id)) ordered.push(id);
-
-  return ordered.map(getCollection);
+  const ids: CollectionId[] = registry.map((c) => c.id);
+  for (const p of products) if (!ids.includes(p.collection)) ids.push(p.collection);
+  return ids.map(getCollection);
 };
 
 /** Resolve a collection by slug, but only if it has content (else 404). */

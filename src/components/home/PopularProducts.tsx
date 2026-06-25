@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Flame, Star, Heart } from "lucide-react";
-import { products, formatPrice } from "@/data/products";
+import { availableProducts, formatPrice } from "@/data/products";
 import { getCollection } from "@/data/collections";
 import { Reveal } from "@/components/Reveal";
 
-const popularProducts = products.slice(0, 6);
+const popularProducts = availableProducts.slice(0, 6);
 
 export function PopularProducts() {
   return (
@@ -62,7 +62,7 @@ export function PopularProducts() {
   );
 }
 
-function PopularProductCard({ product }: { product: (typeof products)[number] }) {
+function PopularProductCard({ product }: { product: (typeof availableProducts)[number] }) {
   const collection = getCollection(product.collection);
 
   return (

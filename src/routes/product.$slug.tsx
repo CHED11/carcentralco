@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Minus, Plus, ShieldCheck, Truck, Globe } from "lucide-react";
 import {
   getProductBySlug,
-  products,
+  hasArtwork,
   formatPrice,
   getStripeLink,
   type Product,
@@ -17,7 +17,7 @@ import { ComingSoonCard } from "@/components/ComingSoonCard";
 export const Route = createFileRoute("/product/$slug")({
   loader: ({ params }) => {
     const product = getProductBySlug(params.slug);
-    if (!product) throw notFound();
+    if (!product || !hasArtwork(product)) throw notFound();
     return { product };
   },
   head: ({ loaderData }) => {
@@ -397,6 +397,3 @@ function RowSection({
     </section>
   );
 }
-
-// keep import used for type clarity
-void products;

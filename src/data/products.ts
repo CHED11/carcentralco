@@ -266,14 +266,26 @@ export const products: Product[] = [
 
 /* ----------------------------- selectors ------------------------------- */
 
+/**
+ * A product is "live" only once it has real uploaded artwork. Until then it is
+ * treated as Coming Soon (see comingSoon.ts) and never rendered as a buyable
+ * card with a placeholder/duplicate image.
+ */
+export const hasArtwork = (product: Product): boolean =>
+  product.image.trim().length > 0 && product.image !== PLACEHOLDER_POSTER;
+
+/** Products with real artwork — these are the ones shown as product cards. */
+export const availableProducts = products.filter(hasArtwork);
+
 export const getProductBySlug = (slug: string) =>
   products.find((p) => p.slug === slug);
 
+/** Only products with artwork appear in collection/division product grids. */
 export const getProductsByCollection = (collection: CollectionId) =>
-  products.filter((p) => p.collection === collection);
+  availableProducts.filter((p) => p.collection === collection);
 
 export const getProductsByDivision = (division: Division) =>
-  products.filter((p) => p.division === division);
+  availableProducts.filter((p) => p.division === division);
 
 /** Stripe Payment Link for a given size + frame, or "" if not yet set. */
 export const getStripeLink = (

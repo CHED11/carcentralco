@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { products } from "@/data/products";
+import { availableProducts } from "@/data/products";
 import { listCollections } from "@/data/collections";
 
 // Set SITE_URL in your Vercel project env to your production domain.
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "weekly" as const,
             priority: "0.7",
           })),
-          ...products.map((p) => ({
+          ...availableProducts.map((p) => ({
             path: `/product/${p.slug}`,
             changefreq: "weekly" as const,
             priority: "0.9",
