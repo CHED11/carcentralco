@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { type ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { Navbar } from "../components/Navbar";
@@ -139,15 +140,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NotifyProvider>
-        <LoadingScreen />
-        <Navbar />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <main className="min-h-screen">
-          <Outlet />
-        </main>
-        <Footer />
-      </NotifyProvider>
+      {/* reducedMotion="user" makes every Framer Motion transform/layout
+          animation respect the OS "reduce motion" setting automatically,
+          while keeping subtle opacity fades for a still-premium feel. */}
+      <MotionConfig reducedMotion="user">
+        <NotifyProvider>
+          <LoadingScreen />
+          <Navbar />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <main className="min-h-screen">
+            <Outlet />
+          </main>
+          <Footer />
+        </NotifyProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

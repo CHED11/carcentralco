@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { divisions } from "@/data/divisions";
 
@@ -8,6 +8,13 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -25,7 +32,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 lg:px-10">
         <Link
           to="/"
-          className="silver-text font-display text-xl tracking-[0.18em] sm:text-2xl"
+          className="silver-text font-display text-xl tracking-[0.18em] transition-opacity hover:opacity-80 sm:text-2xl"
           onClick={() => setMobileOpen(false)}
         >
           CARCENTRALCO
@@ -111,6 +118,13 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Scroll progress — thin silver reading line */}
+      <motion.div
+        style={{ scaleX: progress }}
+        className="silver-line absolute bottom-0 left-0 h-px w-full origin-left opacity-70"
+        aria-hidden
+      />
     </header>
   );
 }

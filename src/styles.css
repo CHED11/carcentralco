@@ -250,3 +250,124 @@
   background-size: 200% 100%;
   animation: shimmer-line 2.2s linear infinite;
 }
+
+/* ---------- Premium ambience (redesign layer) ---------- */
+
+/* Fine film grain — sits over backgrounds at very low opacity for depth. */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Soft silver light orb for premium sections. */
+@utility aurora-silver {
+  background: radial-gradient(
+    circle at center,
+    rgba(222, 226, 232, 0.12) 0%,
+    rgba(180, 184, 190, 0.045) 42%,
+    transparent 72%
+  );
+}
+
+/* Soft performance heat orb. */
+@utility aurora-perf {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 92, 52, 0.16) 0%,
+    rgba(210, 30, 30, 0.05) 44%,
+    transparent 74%
+  );
+}
+
+/* Hairline divider with a glowing centre — premium section separation. */
+@utility divider-glow {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.16) 50%,
+    transparent 100%
+  );
+}
+
+/* Brushed-metal conic gradient for small metallic accents/rings. */
+@utility metallic {
+  background: conic-gradient(
+    from 140deg at 50% 50%,
+    #6f6f6f,
+    #ececec,
+    #9a9a9a,
+    #f6f6f6,
+    #7c7c7c,
+    #ececec,
+    #6f6f6f
+  );
+}
+
+/* ---------- Animations (redesign layer) ---------- */
+
+@keyframes sheen-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(150%) skewX(-18deg);
+  }
+}
+
+@keyframes orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -3%, 0) scale(1.05);
+  }
+}
+
+@utility animate-orb {
+  animation: orb-drift 16s ease-in-out infinite;
+}
+
+/* Luxe button micro-interaction: a single silver sheen sweep on hover. */
+.btn-luxe {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-luxe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 28%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 72%
+  );
+  transform: translateX(-150%) skewX(-18deg);
+  pointer-events: none;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-luxe:hover::after {
+  transform: translateX(150%) skewX(-18deg);
+}
+
+/* Crisper text rendering for large display type. */
+.display-fluid {
+  text-wrap: balance;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+/* ---------- Reduced motion — keep the premium feel, drop the movement ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
