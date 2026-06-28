@@ -32,17 +32,23 @@ function PremiumPage() {
     <div className="bg-background pt-28 sm:pt-36">
       <header className="relative overflow-hidden border-b border-white/10 py-24 sm:py-36">
         <div className="absolute inset-0 spotlight opacity-60" />
+        <div className="aurora-silver pointer-events-none absolute left-1/2 top-1/3 h-[60vh] w-[80vh] -translate-x-1/2 rounded-full opacity-60 blur-3xl" aria-hidden />
+        <div className="grain pointer-events-none absolute inset-0 opacity-[0.035]" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-6 text-center lg:px-10">
           <Reveal>
-            <p className="eyebrow">{division.tagline}</p>
+            <div className="flex items-center justify-center gap-3">
+              <span className="metallic h-1.5 w-1.5 rounded-full" />
+              <p className="eyebrow">{division.tagline}</p>
+              <span className="metallic h-1.5 w-1.5 rounded-full" />
+            </div>
           </Reveal>
-          <Reveal delay={0.1}>
-            <h1 className="silver-text mt-5 font-display text-5xl sm:text-7xl">
+          <Reveal delay={0.1} blur>
+            <h1 className="silver-text display-fluid mt-5 font-display text-5xl sm:text-7xl">
               {division.name}
             </h1>
           </Reveal>
           <Reveal delay={0.2}>
-            <div className="silver-line mx-auto my-7 h-px w-24 opacity-60" />
+            <div className="divider-glow mx-auto my-7 h-px w-24" />
           </Reveal>
           <Reveal delay={0.25}>
             <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground">

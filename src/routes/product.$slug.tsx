@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 import { Minus, Plus, ShieldCheck, Truck, Globe } from "lucide-react";
 import {
   getProductBySlug,
-  products,
+  hasArtwork,
   formatPrice,
+  getStripeLink,
   type Product,
 } from "@/data/products";
-import { buildStripeKey, getStripeLink } from "@/data/stripeLinks";
-import { collections } from "@/data/collections";
+import { getCollection } from "@/data/collections";
 import { comingSoon } from "@/data/comingSoon";
 import { Reveal } from "@/components/Reveal";
 import { ComingSoonCard } from "@/components/ComingSoonCard";
@@ -17,7 +17,7 @@ import { ComingSoonCard } from "@/components/ComingSoonCard";
 export const Route = createFileRoute("/product/$slug")({
   loader: ({ params }) => {
     const product = getProductBySlug(params.slug);
-    if (!product) throw notFound();
+    if (!product || !hasArtwork(product)) throw notFound();
     return { product };
   },
   head: ({ loaderData }) => {
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData() as { product: Product };
-  const collection = collections.find((c) => c.id === product.collection);
+  const collection = getCollection(product.collection);
 
   const [sizeCode, setSizeCode] = useState(
     product.sizes.find((s) => s.popular)?.code ?? product.sizes[0].code,
@@ -58,11 +58,10 @@ function ProductPage() {
   const [frameCode, setFrameCode] = useState(product.frames[0].code);
   const [qty, setQty] = useState(1);
 
-  const stripeKey = useMemo(
-    () => buildStripeKey(product.productKey, sizeCode, frameCode),
-    [product.productKey, sizeCode, frameCode],
+  const stripeUrl = useMemo(
+    () => getStripeLink(product, sizeCode, frameCode),
+    [product, sizeCode, frameCode],
   );
-  const stripeUrl = getStripeLink(stripeKey);
   const available = Boolean(stripeUrl);
 
   const handleBuy = () => {
@@ -398,6 +397,3 @@ function RowSection({
     </section>
   );
 }
-
-// keep import used for type clarity
-void products;

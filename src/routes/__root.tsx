@@ -7,10 +7,10 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -41,9 +41,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -101,8 +98,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "CarCentralCo offers premium, collector-grade automotive art posters for enthusiasts." },
       { property: "og:description", content: "CarCentralCo offers premium, collector-grade automotive art posters for enthusiasts." },
       { name: "twitter:description", content: "CarCentralCo offers premium, collector-grade automotive art posters for enthusiasts." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/93be9f0c-d0e8-4b32-9680-2e205b9b4e11/id-preview-0f9c171a--a95efd52-4d6c-4a1d-9830-283ae6685c29.lovable.app-1781421723397.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/93be9f0c-d0e8-4b32-9680-2e205b9b4e11/id-preview-0f9c171a--a95efd52-4d6c-4a1d-9830-283ae6685c29.lovable.app-1781421723397.png" },
+      // TODO: replace with your production domain + a real Open Graph image.
+      { property: "og:image", content: "https://your-production-domain.com/og-image.png" },
+      { name: "twitter:image", content: "https://your-production-domain.com/og-image.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -142,15 +140,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NotifyProvider>
-        <LoadingScreen />
-        <Navbar />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <main className="min-h-screen">
-          <Outlet />
-        </main>
-        <Footer />
-      </NotifyProvider>
+      {/* reducedMotion="user" makes every Framer Motion transform/layout
+          animation respect the OS "reduce motion" setting automatically,
+          while keeping subtle opacity fades for a still-premium feel. */}
+      <MotionConfig reducedMotion="user">
+        <NotifyProvider>
+          <LoadingScreen />
+          <Navbar />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <main className="min-h-screen">
+            <Outlet />
+          </main>
+          <Footer />
+        </NotifyProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

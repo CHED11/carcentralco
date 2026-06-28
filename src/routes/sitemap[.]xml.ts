@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { products } from "@/data/products";
-import { collections } from "@/data/collections";
+import { availableProducts } from "@/data/products";
+import { listCollections } from "@/data/collections";
 
-const BASE_URL = "https://id-preview--31d97b11-3876-4ceb-a926-a6555999f578.lovable.app";
+// Set SITE_URL in your Vercel project env to your production domain.
+const BASE_URL = process.env.SITE_URL ?? "https://your-production-domain.com";
 
 interface SitemapEntry {
   path: string;
@@ -18,12 +19,12 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/about", changefreq: "monthly", priority: "0.6" },
-          ...collections.map((c) => ({
+          ...listCollections().map((c) => ({
             path: `/collections/${c.slug}`,
             changefreq: "weekly" as const,
             priority: "0.7",
           })),
-          ...products.map((p) => ({
+          ...availableProducts.map((p) => ({
             path: `/product/${p.slug}`,
             changefreq: "weekly" as const,
             priority: "0.9",

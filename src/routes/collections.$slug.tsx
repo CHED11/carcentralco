@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
-import { getCollectionBySlug, collections } from "@/data/collections";
+import { getCollectionBySlug, listCollections } from "@/data/collections";
 import { getProductsByCollection } from "@/data/products";
 import { getComingSoonByCollection } from "@/data/comingSoon";
 import { ProductCard } from "@/components/ProductCard";
@@ -132,7 +132,7 @@ function CollectionPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <p className="eyebrow mb-8">Explore More</p>
           <div className="flex flex-wrap gap-4">
-            {collections
+            {listCollections()
               .filter((c) => c.id !== collection.id)
               .map((c) => (
                 <Link

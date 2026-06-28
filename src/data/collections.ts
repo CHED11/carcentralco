@@ -1,4 +1,5 @@
 import type { CollectionId } from "./products";
+import { products } from "./products";
 
 export type Collection = {
   id: CollectionId;
@@ -9,8 +10,13 @@ export type Collection = {
   description: string;
 };
 
-/** Drives the Collections dropdown and the generic /collections/$slug page. */
-export const collections: Collection[] = [
+/**
+ * Optional rich copy for collection landing pages. You do NOT have to add an
+ * entry here to use a collection — any marque referenced by a product (or a
+ * coming-soon item) gets a sensible auto-generated collection page. Add an
+ * entry only when you want a custom name/tagline/description.
+ */
+const registry: Collection[] = [
   {
     id: "mclaren",
     slug: "mclaren",
@@ -58,5 +64,48 @@ export const collections: Collection[] = [
   },
 ];
 
-export const getCollectionBySlug = (slug: string) =>
-  collections.find((c) => c.slug === slug);
+/** "aston-martin" -> "Aston Martin" */
+const titleCase = (id: string) =>
+  id
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+/** Build default copy for a collection that has no registry entry. */
+const makeDefault = (id: CollectionId): Collection => {
+  const marque = titleCase(id);
+  return {
+    id,
+    slug: id,
+    name: `${marque} Collection`,
+    marque,
+    tagline: "Automotive Art",
+    description: `Collector-grade ${marque} automotive art, curated for enthusiasts.`,
+  };
+};
+
+/** Always returns metadata for a collection id (registry entry or a default). */
+export const getCollection = (id: CollectionId): Collection =>
+  registry.find((c) => c.id === id) ?? makeDefault(id);
+
+/** Backwards-compatible export: the hand-authored collection registry. */
+export const collections = registry;
+
+/**
+ * All curated collections (registry order) plus any extra marque introduced by
+ * a product. Drives the sitemap and "explore more" links, so new collections
+ * appear automatically.
+ */
+export const listCollections = (): Collection[] => {
+  const ids: CollectionId[] = registry.map((c) => c.id);
+  for (const p of products) if (!ids.includes(p.collection)) ids.push(p.collection);
+  return ids.map(getCollection);
+};
+
+/** Resolve a collection by slug, but only if it has content (else 404). */
+export const getCollectionBySlug = (slug: string): Collection | undefined => {
+  const known = registry.find((c) => c.slug === slug);
+  if (known) return known;
+  return listCollections().some((c) => c.slug === slug) ? getCollection(slug) : undefined;
+};

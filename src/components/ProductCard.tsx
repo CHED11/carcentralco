@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { type Product, formatPrice } from "@/data/products";
-import { collections } from "@/data/collections";
+import { getCollection } from "@/data/collections";
 
 export function ProductCard({ product }: { product: Product }) {
-  const collection = collections.find((c) => c.id === product.collection);
+  const collection = getCollection(product.collection);
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
