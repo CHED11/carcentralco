@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { availableProducts, formatPrice, getStripeLink } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 
@@ -24,71 +24,104 @@ export function FeaturedProduct() {
     if (available) window.open(stripeUrl, "_blank", "noopener,noreferrer");
   };
 
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const artY = useTransform(scrollYProgress, [0, 1], ["8%", "-8%"]);
+
+  const specs = product.specs ?? [];
+
   return (
-    <section className="relative overflow-hidden bg-background py-28 sm:py-36">
-      {/* ambient gallery light */}
-      <div className="aurora-silver pointer-events-none absolute left-[8%] top-1/2 h-[60vh] w-[60vh] -translate-y-1/2 rounded-full opacity-60 blur-3xl" aria-hidden />
+    <section ref={ref} className="relative overflow-hidden border-y border-white/10 bg-[#0a0a0a] py-28 sm:py-40">
+      <div className="aurora-silver pointer-events-none absolute left-1/4 top-1/3 h-[60vh] w-[60vh] rounded-full opacity-50 blur-3xl" aria-hidden />
       <div className="grain pointer-events-none absolute inset-0 opacity-[0.03]" aria-hidden />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
+        {/* Section index header */}
+        <Reveal>
+          <div className="flex items-end justify-between border-b border-white/10 pb-8">
+            <div>
+              <p className="eyebrow text-[0.6rem]">The Featured Artifact</p>
+              <h2 className="display-fluid mt-3 font-display text-3xl text-foreground sm:text-4xl">
+                A study in collector-grade detail
+              </h2>
+            </div>
+            <span className="hidden font-display text-5xl text-white/10 sm:block">01</span>
+          </div>
+        </Reveal>
+
+        <div className="mt-16 grid items-center gap-16 lg:grid-cols-[1.05fr_1fr]">
           {/* Gallery framed artwork */}
           <Reveal x={-40} blur>
-            <div className="relative flex items-center justify-center">
+            <motion.div style={{ y: artY }} className="relative flex items-center justify-center">
               <div className="absolute inset-0 scale-125 spotlight" />
               <motion.div
-                className="animate-float-art relative w-full max-w-md"
-                whileHover={{ scale: 1.02, rotate: -0.3 }}
+                className="relative w-full max-w-md"
+                whileHover={{ scale: 1.015, rotate: -0.3 }}
                 transition={{ duration: 0.6, ease: EASE }}
               >
-                {/* metallic frame edge */}
                 <div className="metallic absolute -inset-px rounded-sm opacity-30 blur-[1px]" aria-hidden />
                 <img
                   src={product.image}
                   alt={product.title}
                   className="gallery-shadow relative w-full rounded-sm"
                 />
-                {/* floor reflection */}
                 <div
                   className="absolute inset-x-6 top-full h-24 scale-y-[-1] bg-gradient-to-b from-white/10 to-transparent opacity-30 blur-md"
                   aria-hidden
                 />
               </motion.div>
-            </div>
+            </motion.div>
           </Reveal>
 
-          {/* Copy */}
+          {/* Configurator */}
           <div>
             <Reveal>
               <div className="flex items-center gap-3">
                 <span className="metallic h-1.5 w-1.5 rounded-full" />
-                <p className="eyebrow">Featured Artwork</p>
+                <p className="eyebrow text-[0.6rem]">Limited Collector Edition</p>
               </div>
             </Reveal>
-            <Reveal delay={0.1}>
-              <h2 className="display-fluid mt-5 font-display text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">
+            <Reveal delay={0.08}>
+              <h3 className="display-fluid mt-5 font-display text-4xl leading-tight text-foreground sm:text-5xl">
                 Porsche 918 Spyder
                 <span className="silver-text block italic">Poster</span>
-              </h2>
+              </h3>
             </Reveal>
-            <Reveal delay={0.2}>
-              <div className="divider-glow my-7 h-px w-24" />
-            </Reveal>
-            <Reveal delay={0.25}>
-              <p className="max-w-md text-balance text-base leading-relaxed text-muted-foreground">
+            <Reveal delay={0.16}>
+              <p className="mt-6 max-w-md text-balance text-base leading-relaxed text-muted-foreground">
                 {product.description}
               </p>
             </Reveal>
-            <Reveal delay={0.35}>
-              <div className="mt-9 flex items-center gap-6">
+
+            {/* Spec ribbon */}
+            {specs.length > 0 && (
+              <Reveal delay={0.24}>
+                <div className="mt-9 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/5">
+                  {specs.slice(0, 3).map((s) => (
+                    <div key={s.label} className="bg-[#0c0c0c] p-4 text-center">
+                      <p className="text-[0.5rem] uppercase tracking-[0.18em] text-silver-dim">{s.label}</p>
+                      <p className="mt-2 font-display text-2xl text-foreground">
+                        {s.value}
+                        {s.unit && <span className="ml-1 text-sm text-silver/60">{s.unit}</span>}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            )}
+
+            <Reveal delay={0.3}>
+              <div className="mt-9 flex items-center gap-5">
                 <p className="text-2xl text-silver">From {formatPrice(product.basePrice)}</p>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-[0.55rem] font-semibold uppercase tracking-[0.25em] text-silver-dim">
-                  Limited Collector Edition
-                </span>
+                <div className="divider-glow h-px flex-1" />
               </div>
             </Reveal>
-            <Reveal delay={0.4}>
-              <div className="mt-9">
+
+            <Reveal delay={0.36}>
+              <div className="mt-8">
                 <p className="eyebrow mb-3 text-[0.6rem]">Size</p>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((s) => (
@@ -107,7 +140,7 @@ export function FeaturedProduct() {
                 </div>
               </div>
             </Reveal>
-            <Reveal delay={0.5}>
+            <Reveal delay={0.42}>
               <div className="mt-6">
                 <p className="eyebrow mb-3 text-[0.6rem]">Frame</p>
                 <div className="flex flex-wrap gap-3">
@@ -127,7 +160,7 @@ export function FeaturedProduct() {
                 </div>
               </div>
             </Reveal>
-            <Reveal delay={0.6}>
+            <Reveal delay={0.48}>
               <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
                 <motion.button
                   onClick={handleBuy}
