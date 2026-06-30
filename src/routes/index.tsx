@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/components/home/Hero";
-import { PopularProducts } from "@/components/home/PopularProducts";
+import { Manifesto } from "@/components/home/Manifesto";
 import { FeaturedProduct } from "@/components/home/FeaturedProduct";
-import { DivisionsSection } from "@/components/home/DivisionsSection";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
+import { PopularProducts } from "@/components/home/PopularProducts";
+import { DivisionsSection } from "@/components/home/DivisionsSection";
+import { ComingSoonSection } from "@/components/home/ComingSoonSection";
 import { AboutSection } from "@/components/home/AboutSection";
 import { SocialProof } from "@/components/home/SocialProof";
-import { ComingSoonSection } from "@/components/home/ComingSoonSection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,14 +32,17 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <>
+      {/* A guided journey: arrival → philosophy → the artifact → the
+          collection → the signature cross-over → what's next → who we are. */}
       <Hero />
-      <PopularProducts />
+      <Manifesto />
       <FeaturedProduct />
-      <DivisionsSection />
       <WhyChooseUs />
+      <PopularProducts />
+      <DivisionsSection />
+      <ComingSoonSection />
       <AboutSection />
       <SocialProof />
-      <ComingSoonSection />
     </>
   );
 }

@@ -2,49 +2,65 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 
-const testimonials = [
+const hero = {
+  quote: "It doesn't feel like a poster on the wall. It feels like a piece of the car itself.",
+  name: "Marcus T.",
+  role: "Owner, Porsche 918",
+};
+
+const supporting = [
   { quote: "The perfect centrepiece for my office.", name: "James R.", role: "Collector" },
   { quote: "Looks incredible in my garage.", name: "Daniel M.", role: "Enthusiast" },
   { quote: "Premium quality from frame to print.", name: "Sofia L.", role: "Collector" },
-  { quote: "Exactly what every enthusiast needs.", name: "Marcus T.", role: "Owner, 918" },
 ];
 
 export function SocialProof() {
   return (
-    <section className="relative overflow-hidden border-y border-white/10 bg-charcoal/40 py-28 sm:py-32">
-      <div className="grain pointer-events-none absolute inset-0 opacity-[0.03]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-        <Reveal blur>
-          <div className="text-center">
-            <p className="eyebrow">Trusted By Enthusiasts</p>
-            <h2 className="display-fluid mt-5 font-display text-4xl text-foreground sm:text-5xl">
-              From The Collectors
-            </h2>
-            <div className="divider-glow mx-auto mt-7 h-px w-24" />
+    <section className="relative overflow-hidden bg-[#0a0a0a] py-28 sm:py-36">
+      <div className="aurora-silver pointer-events-none absolute left-1/2 top-0 h-[40vh] w-[70vh] -translate-x-1/2 rounded-full opacity-40 blur-3xl" aria-hidden />
+      <div className="relative mx-auto max-w-5xl px-6 lg:px-10">
+        <Reveal>
+          <div className="flex items-center justify-center gap-3">
+            <span className="metallic h-1.5 w-1.5 rounded-full" />
+            <p className="eyebrow text-[0.6rem]">From The Collectors</p>
+            <span className="metallic h-1.5 w-1.5 rounded-full" />
           </div>
         </Reveal>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {testimonials.map((t, i) => (
-            <Reveal key={t.name} delay={(i % 4) * 0.08} y={34}>
+        {/* Hero quote */}
+        <Reveal delay={0.1} blur>
+          <figure className="mx-auto mt-12 max-w-3xl text-center">
+            <div className="mb-6 flex justify-center gap-1 text-silver/80">
+              {Array.from({ length: 5 }).map((_, s) => (
+                <Star key={s} className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+              ))}
+            </div>
+            <blockquote className="display-fluid font-display text-3xl leading-snug text-foreground sm:text-4xl lg:text-5xl">
+              "{hero.quote}"
+            </blockquote>
+            <figcaption className="mt-8">
+              <div className="divider-glow mx-auto mb-4 h-px w-16" />
+              <p className="text-sm text-silver">{hero.name}</p>
+              <p className="eyebrow mt-1 text-[0.55rem]">{hero.role}</p>
+            </figcaption>
+          </figure>
+        </Reveal>
+
+        {/* Supporting quotes */}
+        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+          {supporting.map((t, i) => (
+            <Reveal key={t.name} delay={i * 0.08} y={30}>
               <motion.figure
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="glass group flex h-full flex-col justify-between rounded-xl p-8"
+                className="group flex h-full flex-col justify-between rounded-xl border border-white/10 bg-charcoal/60 p-7"
               >
-                <div>
-                  <div className="flex gap-1 text-silver/80">
-                    {Array.from({ length: 5 }).map((_, s) => (
-                      <Star key={s} className="h-3.5 w-3.5" fill="currentColor" strokeWidth={0} />
-                    ))}
-                  </div>
-                  <blockquote className="mt-5 font-display text-2xl leading-snug text-foreground">
-                    "{t.quote}"
-                  </blockquote>
-                </div>
-                <figcaption className="mt-8">
-                  <div className="silver-line mb-4 h-px w-10 opacity-60 transition-all duration-500 group-hover:w-16" />
-                  <p className="text-sm text-silver">{t.name}</p>
+                <blockquote className="font-display text-xl leading-snug text-foreground">
+                  "{t.quote}"
+                </blockquote>
+                <figcaption className="mt-6">
+                  <div className="silver-line h-px w-8 opacity-60 transition-all duration-500 group-hover:w-14" />
+                  <p className="mt-4 text-sm text-silver">{t.name}</p>
                   <p className="eyebrow mt-1 text-[0.55rem]">{t.role}</p>
                 </figcaption>
               </motion.figure>

@@ -10,32 +10,36 @@ export function ComingSoonSection({
   items?: typeof comingSoon;
 }) {
   return (
-    <section className="relative overflow-hidden bg-background py-28 sm:py-36">
+    <section className="relative overflow-hidden border-y border-white/10 bg-[#0a0a0a] py-28 sm:py-36">
       <div className="aurora-silver pointer-events-none absolute -top-24 left-1/2 h-[50vh] w-[80vh] -translate-x-1/2 rounded-full opacity-50 blur-3xl" aria-hidden />
       <div className="grain pointer-events-none absolute inset-0 opacity-[0.03]" aria-hidden />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-        <Reveal blur>
-          <div className="text-center">
-            <p className="eyebrow">The Future Catalogue</p>
-            <h2 className="display-fluid mt-5 font-display text-4xl text-foreground sm:text-5xl">
-              Coming Soon
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-balance text-sm leading-relaxed text-muted-foreground">
-              A preview of upcoming artwork entering the collection. Reserve early
-              access to the next releases.
-            </p>
-          </div>
-        </Reveal>
+        {/* Header + countdown */}
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <Reveal blur>
+            <div>
+              <p className="eyebrow text-[0.6rem]">The Future Catalogue</p>
+              <h2 className="display-fluid mt-4 font-display text-4xl text-foreground sm:text-6xl">
+                What's
+                <span className="silver-text block italic">arriving next.</span>
+              </h2>
+              <p className="mt-6 max-w-md text-balance text-sm leading-relaxed text-muted-foreground">
+                A preview of upcoming artwork entering the collection. Reserve early
+                access — releases are limited and move quickly.
+              </p>
+            </div>
+          </Reveal>
 
-        {/* Next-drop countdown */}
-        <Reveal delay={0.1}>
-          <NextDropCountdown />
-        </Reveal>
+          <Reveal delay={0.12} x={30}>
+            <NextDropCountdown />
+          </Reveal>
+        </div>
 
+        {/* Grid */}
         <div className="mt-16 grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
           {items.map((item, i) => (
-            <Reveal key={item.id} delay={(i % 4) * 0.08} y={34}>
+            <Reveal key={item.id} delay={(i % 4) * 0.07} y={34}>
               <ComingSoonCard item={item} />
             </Reveal>
           ))}
@@ -90,21 +94,17 @@ function NextDropCountdown() {
   ];
 
   return (
-    <div className="mx-auto mt-12 flex max-w-xl flex-col items-center">
+    <div className="glass rounded-2xl p-8 sm:p-10">
       <div className="flex items-center gap-3">
         <span className="metallic h-1.5 w-1.5 rounded-full" />
         <p className="text-[0.6rem] font-semibold uppercase tracking-[0.4em] text-silver-dim">
           Next Release Drops In
         </p>
-        <span className="metallic h-1.5 w-1.5 rounded-full" />
       </div>
 
-      <div className="mt-6 grid w-full grid-cols-4 gap-3 sm:gap-4">
+      <div className="mt-7 grid grid-cols-4 gap-3 sm:gap-4">
         {units.map((u) => (
-          <div
-            key={u.label}
-            className="glass flex flex-col items-center rounded-xl px-2 py-5 sm:py-6"
-          >
+          <div key={u.label} className="flex flex-col items-center rounded-xl border border-white/10 bg-white/[0.02] px-2 py-5 sm:py-6">
             <motion.span
               key={mounted ? u.value : -1}
               initial={mounted ? { opacity: 0, y: -8 } : false}

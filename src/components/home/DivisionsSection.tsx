@@ -1,88 +1,141 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { divisions } from "@/data/divisions";
-import { Reveal } from "@/components/Reveal";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { getDivision } from "@/data/divisions";
+import { getProductsByDivision } from "@/data/products";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+const premium = getDivision("premium");
+const performance = getDivision("performance");
+const premiumProduct = getProductsByDivision("premium")[0];
+const perfProduct = getProductsByDivision("performance")[0];
 
+const premiumArt = premiumProduct?.framedImage ?? premiumProduct?.image;
+const perfArt = perfProduct?.image;
+
+/**
+ * The signature moment: a scroll-pinned cinematic cross-over. The silver
+ * Premium gallery dissolves into the red Performance division as you scroll
+ * through the section.
+ */
 export function DivisionsSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+
+  // Cross-fade the two full-stage scenes.
+  const premiumOpacity = useTransform(scrollYProgress, [0, 0.32, 0.5], [1, 1, 0]);
+  const premiumScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.08]);
+  const premiumPE = useTransform(scrollYProgress, (v) => (v < 0.5 ? "auto" : "none"));
+
+  const perfOpacity = useTransform(scrollYProgress, [0.5, 0.68, 1], [0, 1, 1]);
+  const perfScale = useTransform(scrollYProgress, [0.5, 1], [1.08, 1]);
+  const perfPE = useTransform(scrollYProgress, (v) => (v >= 0.5 ? "auto" : "none"));
+
+  // Center seam light intensifies through the hand-off.
+  const seam = useTransform(scrollYProgress, [0.3, 0.5, 0.7], [0, 1, 0]);
+
+  // Progress rail fill.
+  const railFill = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
   return (
-    <section className="relative overflow-hidden border-y border-white/10 bg-[#0a0a0a] py-28 sm:py-36">
-      <div className="grain pointer-events-none absolute inset-0 opacity-[0.03]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
-        <Reveal blur>
-          <div className="text-center">
-            <p className="eyebrow">Two Divisions. One Obsession.</p>
-            <h2 className="display-fluid mt-5 font-display text-4xl text-foreground sm:text-5xl">
-              Choose Your Collection
+    <section ref={ref} className="relative h-[260vh] bg-background">
+      <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden">
+        {/* ---- Premium scene ---- */}
+        <motion.div
+          style={{ opacity: premiumOpacity, scale: premiumScale, pointerEvents: premiumPE }}
+          className="absolute inset-0"
+        >
+          {premiumArt && (
+            <img src={premiumArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" aria-hidden />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background" />
+          <div className="aurora-silver absolute left-1/2 top-1/3 h-[70vh] w-[70vh] -translate-x-1/2 rounded-full opacity-70 blur-3xl" aria-hidden />
+          <div className="grain absolute inset-0 opacity-[0.04]" aria-hidden />
+
+          <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
+            <p className="eyebrow">{premium.eyebrow} — Premium Collection</p>
+            <h2 className="silver-text display-fluid mt-6 font-display text-6xl italic sm:text-8xl lg:text-9xl">
+              The Gallery
             </h2>
-            <div className="divider-glow mx-auto mt-7 h-px w-24" />
+            <p className="mx-auto mt-7 max-w-xl text-balance text-base leading-relaxed text-silver/70">
+              {premium.description}
+            </p>
+            <DivisionCta to="/premium" label="Enter The Gallery" variant="silver" />
           </div>
-        </Reveal>
+        </motion.div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2">
-          {divisions.map((d, i) => {
-            const isPerf = d.id === "performance";
-            return (
-              <Reveal key={d.id} delay={i * 0.12} y={40}>
-                <Link to={d.path} className="group block h-full">
-                  <motion.div
-                    whileHover={{ y: -10 }}
-                    transition={{ duration: 0.55, ease: EASE }}
-                    className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0c] p-10 sm:p-14"
-                  >
-                    {/* atmosphere */}
-                    <div
-                      className={`absolute inset-0 transition-opacity duration-700 group-hover:opacity-100 ${
-                        isPerf ? "perf-spotlight opacity-50" : "spotlight opacity-45"
-                      }`}
-                    />
-                    {isPerf ? (
-                      <div className="perf-grid absolute inset-0 opacity-20 transition-opacity duration-700 group-hover:opacity-40" />
-                    ) : (
-                      <div className="aurora-silver absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-50 blur-2xl transition-opacity duration-700 group-hover:opacity-80" />
-                    )}
+        {/* ---- Performance scene ---- */}
+        <motion.div
+          style={{ opacity: perfOpacity, scale: perfScale, pointerEvents: perfPE }}
+          className="absolute inset-0 bg-[#070707]"
+        >
+          {perfArt && (
+            <img src={perfArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" aria-hidden />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070707]/80 via-[#070707]/70 to-[#070707]" />
+          <div className="perf-grid absolute inset-0 opacity-30" aria-hidden />
+          <div className="perf-spotlight absolute inset-x-0 top-0 h-[80vh]" aria-hidden />
+          <div className="aurora-perf absolute left-1/2 top-1/3 h-[70vh] w-[70vh] -translate-x-1/2 rounded-full opacity-80 blur-3xl" aria-hidden />
 
-                    {/* top accent line that draws in on hover */}
-                    <span
-                      className={`absolute left-0 top-0 h-[2px] w-0 transition-[width] duration-700 ease-out group-hover:w-full ${
-                        isPerf ? "perf-line" : "silver-line"
-                      }`}
-                    />
+          <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.45em] text-silver-dim">
+              {performance.eyebrow} — Performance Collection
+            </p>
+            <h2 className="perf-text display-fluid mt-6 font-display text-6xl uppercase sm:text-8xl lg:text-9xl">
+              The Division
+            </h2>
+            <p className="mx-auto mt-7 max-w-xl text-balance text-base leading-relaxed text-silver/70">
+              {performance.description}
+            </p>
+            <DivisionCta to="/performance" label="Enter The Division" variant="perf" />
+          </div>
+        </motion.div>
 
-                    <div className="relative">
-                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-silver-dim">
-                        {d.eyebrow}
-                      </p>
-                      <h3
-                        className={`mt-4 font-display text-3xl uppercase sm:text-4xl ${
-                          isPerf ? "perf-text" : "silver-text"
-                        }`}
-                      >
-                        {d.name}
-                      </h3>
-                      <div
-                        className={`my-6 h-px w-16 transition-all duration-500 group-hover:w-28 ${
-                          isPerf ? "perf-line" : "silver-line"
-                        }`}
-                      />
-                      <p className="max-w-sm text-balance text-sm leading-relaxed text-silver/70">
-                        {d.description}
-                      </p>
-                      <span className="mt-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-foreground">
-                        {isPerf ? "Enter Performance" : "Enter Premium"}
-                        <span className="transition-transform duration-300 group-hover:translate-x-1.5">
-                          →
-                        </span>
-                      </span>
-                    </div>
-                  </motion.div>
-                </Link>
-              </Reveal>
-            );
-          })}
+        {/* ---- Center seam light ---- */}
+        <motion.div
+          style={{ opacity: seam }}
+          className="pointer-events-none absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-gradient-to-b from-transparent via-white/70 to-transparent blur-[1px]"
+          aria-hidden
+        />
+
+        {/* ---- Cross-over progress rail ---- */}
+        <div className="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2">
+          <div className="flex items-center gap-4">
+            <span className="text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-silver-dim">Gallery</span>
+            <div className="relative h-px w-32 overflow-hidden bg-white/15 sm:w-48">
+              <motion.div style={{ width: railFill }} className="silver-line absolute inset-y-0 left-0" />
+            </div>
+            <span className="text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-silver-dim">Division</span>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function DivisionCta({
+  to,
+  label,
+  variant,
+}: {
+  to: "/premium" | "/performance";
+  label: string;
+  variant: "silver" | "perf";
+}) {
+  return (
+    <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className="mt-10">
+      <Link
+        to={to}
+        className={`btn-luxe inline-block rounded-sm px-10 py-4 text-xs font-bold uppercase tracking-[0.25em] transition-opacity hover:opacity-90 ${
+          variant === "silver"
+            ? "silver-line text-primary-foreground"
+            : "perf-line text-white"
+        }`}
+      >
+        {label}
+      </Link>
+    </motion.div>
   );
 }

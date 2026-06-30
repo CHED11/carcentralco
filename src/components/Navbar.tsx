@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, ArrowUpRight } from "lucide-react";
 import { divisions } from "@/data/divisions";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -10,11 +12,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -23,10 +21,18 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll while the mobile overlay is open.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   return (
     <header
-      className={`glass-nav fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "py-3" : "py-5"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        scrolled ? "glass-nav py-3" : "border-b border-transparent py-5"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 lg:px-10">
@@ -49,33 +55,35 @@ export function Navbar() {
           >
             <button className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-silver/80 transition-colors hover:text-foreground">
               Collections
-              <ChevronDown className="h-3.5 w-3.5" />
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${collectionsOpen ? "rotate-180" : ""}`} />
             </button>
             <AnimatePresence>
               {collectionsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.25 }}
-                  className="glass absolute left-1/2 top-full w-72 -translate-x-1/2 rounded-md p-2 pt-3"
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.28, ease: EASE }}
+                  className="glass absolute left-1/2 top-full w-80 -translate-x-1/2 rounded-xl p-2.5 pt-3"
                 >
-                  {divisions.map((d) => (
-                    <Link
-                      key={d.id}
-                      to={d.path}
-                      className="block rounded-sm px-4 py-3 transition-colors hover:bg-white/5"
-                    >
-                      <span
-                        className={`block font-display text-base ${
-                          d.id === "performance" ? "perf-text" : "silver-text"
-                        }`}
+                  {divisions.map((d) => {
+                    const isPerf = d.id === "performance";
+                    return (
+                      <Link
+                        key={d.id}
+                        to={d.path}
+                        className="group flex items-center justify-between gap-3 rounded-lg px-4 py-3.5 transition-colors hover:bg-white/5"
                       >
-                        {d.name}
-                      </span>
-                      <span className="eyebrow text-[0.6rem]">{d.tagline}</span>
-                    </Link>
-                  ))}
+                        <span>
+                          <span className={`block font-display text-lg ${isPerf ? "perf-text" : "silver-text"}`}>
+                            {d.name}
+                          </span>
+                          <span className="eyebrow text-[0.55rem]">{d.tagline}</span>
+                        </span>
+                        <ArrowUpRight className="h-4 w-4 text-silver-dim transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground" />
+                      </Link>
+                    );
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -87,7 +95,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="md:hidden text-foreground"
+          className="text-foreground md:hidden"
           aria-label="Menu"
           onClick={() => setMobileOpen((v) => !v)}
         >
@@ -95,24 +103,37 @@ export function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Full-screen mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+            className="fixed inset-0 top-0 -z-10 h-[100svh] bg-background/95 backdrop-blur-xl md:hidden"
           >
-            <div className="mx-6 mt-4 space-y-1 border-t border-white/10 pt-4">
-              <MobileLink to="/" onClick={() => setMobileOpen(false)}>Home</MobileLink>
-              <MobileLink to="/about" onClick={() => setMobileOpen(false)}>About</MobileLink>
-              <p className="eyebrow px-1 pt-4">Collections</p>
-              {divisions.map((d) => (
-                <MobileLink key={d.id} to={d.path} onClick={() => setMobileOpen(false)}>
-                  {d.name}
-                </MobileLink>
+            <div className="flex h-full flex-col justify-center gap-2 px-8 pt-20">
+              {[
+                { to: "/", label: "Home" },
+                { to: "/premium", label: "Premium Collection" },
+                { to: "/performance", label: "Performance Collection" },
+                { to: "/about", label: "About" },
+              ].map((l, i) => (
+                <motion.div
+                  key={l.to}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.06 * i + 0.1, duration: 0.4, ease: EASE }}
+                >
+                  <Link
+                    to={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className="block py-3 font-display text-3xl text-foreground"
+                  >
+                    {l.label}
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -129,47 +150,16 @@ export function Navbar() {
   );
 }
 
-function NavLink({
-  to,
-  params,
-  children,
-}: {
-  to: string;
-  params?: Record<string, string>;
-  children: React.ReactNode;
-}) {
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <Link
       to={to}
-      params={params}
       activeOptions={{ exact: to === "/" }}
-      className="text-xs font-semibold uppercase tracking-[0.22em] text-silver/80 transition-colors hover:text-foreground"
+      className="group relative text-xs font-semibold uppercase tracking-[0.22em] text-silver/80 transition-colors hover:text-foreground"
       activeProps={{ className: "text-foreground" }}
     >
       {children}
-    </Link>
-  );
-}
-
-function MobileLink({
-  to,
-  params,
-  children,
-  onClick,
-}: {
-  to: string;
-  params?: Record<string, string>;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      onClick={onClick}
-      className="block py-2.5 text-sm uppercase tracking-[0.18em] text-silver/80"
-    >
-      {children}
+      <span className="silver-line absolute -bottom-1.5 left-0 h-px w-0 opacity-70 transition-all duration-300 group-hover:w-full" />
     </Link>
   );
 }
