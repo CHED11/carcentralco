@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Minus, Plus, ShieldCheck, Truck, Globe } from "lucide-react";
+import { Minus, Plus, ShieldCheck, Truck, Globe, Check } from "lucide-react";
 import {
   getProductBySlug,
   hasArtwork,
@@ -55,7 +55,8 @@ function ProductPage() {
   const [sizeCode, setSizeCode] = useState(
     product.sizes.find((s) => s.popular)?.code ?? product.sizes[0].code,
   );
-  const [frameCode, setFrameCode] = useState(product.frames[0].code);
+  // Framed posters only — the single frame is fixed, not a customer choice.
+  const frameCode = product.frames[0].code;
   const [qty, setQty] = useState(1);
 
   const stripeUrl = useMemo(
@@ -95,7 +96,7 @@ function ProductPage() {
 
       <div className="mx-auto grid max-w-7xl gap-14 px-6 pb-32 pt-10 lg:grid-cols-2 lg:gap-20 lg:px-10">
         {/* Gallery */}
-        <ProductGallery product={product} framed={frameCode !== "PRINT_ONLY"} />
+        <ProductGallery product={product} framed />
 
         {/* Purchase column (sticky on desktop) */}
         <div>
@@ -139,45 +140,42 @@ function ProductPage() {
             {/* Sizes */}
             <div>
               <p className="eyebrow mb-4 text-[0.6rem]">Size</p>
-              <div className="flex flex-wrap gap-3">
-                {product.sizes.map((s) => (
-                  <button
-                    key={s.code}
-                    onClick={() => setSizeCode(s.code)}
-                    className={`relative rounded-sm border px-5 py-3 text-sm transition-all duration-300 ${
-                      sizeCode === s.code
-                        ? "border-silver/70 bg-white/5 text-foreground"
-                        : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
-                    }`}
-                  >
-                    {s.label}
-                    {s.popular && (
-                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-silver/30 bg-background px-2 py-0.5 text-[0.5rem] font-semibold uppercase tracking-[0.18em] text-silver">
-                        Most Popular
-                      </span>
-                    )}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-3">
+                {product.sizes.map((s) => {
+                  const selected = sizeCode === s.code;
+                  return (
+                    <button
+                      key={s.code}
+                      onClick={() => setSizeCode(s.code)}
+                      aria-pressed={selected}
+                      className={`relative rounded-sm border px-5 py-4 text-left transition-all duration-300 ${
+                        selected
+                          ? "border-silver/70 bg-white/5 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                          : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
+                      }`}
+                    >
+                      {s.popular && (
+                        <span className="absolute -top-2.5 left-4 whitespace-nowrap rounded-full border border-silver/30 bg-background px-2 py-0.5 text-[0.5rem] font-semibold uppercase tracking-[0.18em] text-silver">
+                          Most Popular
+                        </span>
+                      )}
+                      <span className="block text-sm font-semibold">{s.label}</span>
+                      {s.dimensions && (
+                        <span className="mt-1 block text-xs text-silver/60">{s.dimensions}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Frames */}
+            {/* Frame — framed posters only, fixed selection */}
             <div className="mt-8">
               <p className="eyebrow mb-4 text-[0.6rem]">Frame</p>
-              <div className="flex flex-wrap gap-3">
-                {product.frames.map((f) => (
-                  <button
-                    key={f.code}
-                    onClick={() => setFrameCode(f.code)}
-                    className={`rounded-sm border px-5 py-3 text-sm transition-all duration-300 ${
-                      frameCode === f.code
-                        ? "border-silver/70 bg-white/5 text-foreground"
-                        : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
+              <div className="inline-flex items-center gap-3 rounded-sm border border-silver/70 bg-white/5 px-5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                <span className="h-3.5 w-3.5 rounded-[3px] border border-white/40 bg-[#0c0c0c]" aria-hidden />
+                <span className="text-sm font-semibold text-foreground">{product.frames[0].label}</span>
+                <Check className="h-4 w-4 text-silver" />
               </div>
             </div>
 
