@@ -23,8 +23,8 @@ The slug is the title, lowercased, without the word "Poster":
 public/products/<slug>/framed.png
 ```
 
-This is shown when a customer selects a framed option. Skip it if you don't
-have one yet.
+Every poster is sold framed (Black Frame), so this is the image customers see.
+Skip it if you don't have one yet.
 
 ## 3. Add the product information
 
@@ -43,14 +43,10 @@ defineProduct({
     { label: "Top Speed", value: "324", unit: "km/h", sub: "201 mph" },
     // …
   ],
-  // 4. Stripe links (see below)
+  // 4. Stripe links — one per size, both framed (see below)
   stripe: {
-    "16X20_PRINT_ONLY": "https://buy.stripe.com/…",
-    "16X20_BLACK_FRAME": "https://buy.stripe.com/…",
-    "18X24_PRINT_ONLY": "https://buy.stripe.com/…",
-    "18X24_BLACK_FRAME": "https://buy.stripe.com/…",
-    "24X36_PRINT_ONLY": "https://buy.stripe.com/…",
-    "24X36_BLACK_FRAME": "https://buy.stripe.com/…",
+    "16X20_BLACK_FRAME": "https://buy.stripe.com/…", // Standard
+    "18X24_BLACK_FRAME": "https://buy.stripe.com/…", // Large
   },
 });
 ```
@@ -62,16 +58,17 @@ Everything else is defaulted for you:
 | `slug` / `id` | derived from `title` |
 | `image` | `/products/<slug>/poster.png` |
 | `features` | the standard five selling points |
-| `sizes` | 16×20, 18×24, 24×36 |
-| `frames` | Print Only, Black Frame |
-| `stripe` | `{}` (buttons show **Available Soon**) |
+| `sizes` | Standard (16 × 20 in), Large (18 × 24 in) |
+| `frames` | Black Frame (framed posters only) |
+| `stripe` | one empty slot per size × frame (buttons show **Available Soon** until filled) |
 
 ## 4. Add the Stripe links
 
-In the Stripe dashboard create a **Payment Link** for each size + frame combo,
+In the Stripe dashboard create a **Payment Link** for each size (both framed),
 then paste the URLs into the `stripe` map. The key is
 `` `${SIZE_CODE}_${FRAME_CODE}` `` using the codes from `STANDARD_SIZES` /
-`STANDARD_FRAMES` (e.g. `16X20_BLACK_FRAME`). A missing/empty link simply renders
+`STANDARD_FRAMES` — so just two links per product: `16X20_BLACK_FRAME`
+(Standard) and `18X24_BLACK_FRAME` (Large). A missing/empty link simply renders
 as "Available Soon", so you can ship the product before the links exist.
 
 ---

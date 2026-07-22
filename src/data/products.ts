@@ -32,12 +32,13 @@ export type CollectionId = string;
 
 export type SizeOption = {
   code: string; // used in the stripe key, e.g. "16X20"
-  label: string;
+  label: string; // customer-facing label, e.g. "Standard"
+  dimensions?: string; // shown beneath the label, e.g. "16 × 20 in"
   popular?: boolean;
 };
 
 export type FrameOption = {
-  code: string; // used in the stripe key, e.g. "PRINT_ONLY"
+  code: string; // used in the stripe key, e.g. "BLACK_FRAME"
   label: string;
 };
 
@@ -75,14 +76,14 @@ export type Product = {
   stripe: StripeLinks;
 };
 
+// Two sizes only. Standard is the most popular and the default selection.
 export const STANDARD_SIZES: SizeOption[] = [
-  { code: "16X20", label: "16×20 Inches", popular: true },
-  { code: "18X24", label: "18×24 Inches" },
-  { code: "24X36", label: "24×36 Inches" },
+  { code: "16X20", label: "Standard", dimensions: "16 × 20 in", popular: true },
+  { code: "18X24", label: "Large", dimensions: "18 × 24 in" },
 ];
 
+// CarCentralCo sells framed posters only — Black Frame is the single option.
 export const STANDARD_FRAMES: FrameOption[] = [
-  { code: "PRINT_ONLY", label: "Print Only" },
   { code: "BLACK_FRAME", label: "Black Frame" },
 ];
 
@@ -133,6 +134,20 @@ export type ProductInput = {
 /** Normalises one product input into a complete Product with defaults applied. */
 export function defineProduct(input: ProductInput): Product {
   const slug = input.slug ?? slugify(input.title);
+  const sizes = input.sizes ?? STANDARD_SIZES;
+  const frames = input.frames ?? STANDARD_FRAMES;
+
+  // Guarantee a Stripe checkout slot for every size × frame combination, so
+  // each product always has its own separate links (e.g. Standard + Large,
+  // both framed). A slot left as "" simply renders as "Available Soon".
+  const stripe: StripeLinks = {};
+  for (const s of sizes) {
+    for (const f of frames) {
+      const key = `${s.code}_${f.code}`;
+      stripe[key] = input.stripe?.[key] ?? "";
+    }
+  }
+
   return {
     id: input.id ?? slug,
     slug,
@@ -145,9 +160,9 @@ export function defineProduct(input: ProductInput): Product {
     description: input.description,
     features: input.features ?? DEFAULT_FEATURES,
     specs: input.specs,
-    sizes: input.sizes ?? STANDARD_SIZES,
-    frames: input.frames ?? STANDARD_FRAMES,
-    stripe: input.stripe ?? {},
+    sizes,
+    frames,
+    stripe,
   };
 }
 
@@ -173,7 +188,9 @@ export const products: Product[] = [
       { label: "MSRP", value: "$845,000", sub: "USD" },
     ],
     stripe: {
-      // "16X20_PRINT_ONLY": "https://buy.stripe.com/...",
+      // Framed posters only — paste one Stripe Payment Link per size:
+      // "16X20_BLACK_FRAME": "https://buy.stripe.com/...", // Standard
+      // "18X24_BLACK_FRAME": "https://buy.stripe.com/...", // Large
     },
   }),
   defineProduct({

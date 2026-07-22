@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { Check } from "lucide-react";
 import { availableProducts, formatPrice, getStripeLink } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 
@@ -12,7 +13,8 @@ export function FeaturedProduct() {
   const [sizeCode, setSizeCode] = useState(
     product.sizes.find((s) => s.popular)?.code ?? product.sizes[0].code,
   );
-  const [frameCode, setFrameCode] = useState(product.frames[0].code);
+  // Framed posters only — the single frame is fixed, not a customer choice.
+  const frameCode = product.frames[0].code;
 
   const stripeUrl = useMemo(
     () => getStripeLink(product, sizeCode, frameCode),
@@ -123,40 +125,42 @@ export function FeaturedProduct() {
             <Reveal delay={0.36}>
               <div className="mt-8">
                 <p className="eyebrow mb-3 text-[0.6rem]">Size</p>
-                <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((s) => (
-                    <button
-                      key={s.code}
-                      onClick={() => setSizeCode(s.code)}
-                      className={`rounded-sm border px-4 py-2.5 text-xs transition-all duration-300 ${
-                        sizeCode === s.code
-                          ? "border-silver/70 bg-white/5 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                          : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                <div className="grid max-w-sm grid-cols-2 gap-3">
+                  {product.sizes.map((s) => {
+                    const selected = sizeCode === s.code;
+                    return (
+                      <button
+                        key={s.code}
+                        onClick={() => setSizeCode(s.code)}
+                        aria-pressed={selected}
+                        className={`relative rounded-sm border px-4 py-3 text-left transition-all duration-300 ${
+                          selected
+                            ? "border-silver/70 bg-white/5 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                            : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
+                        }`}
+                      >
+                        {s.popular && (
+                          <span className="absolute -top-2.5 left-3 whitespace-nowrap rounded-full border border-silver/30 bg-background px-2 py-0.5 text-[0.45rem] font-semibold uppercase tracking-[0.18em] text-silver">
+                            Most Popular
+                          </span>
+                        )}
+                        <span className="block text-xs font-semibold">{s.label}</span>
+                        {s.dimensions && (
+                          <span className="mt-0.5 block text-[0.65rem] text-silver/60">{s.dimensions}</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </Reveal>
             <Reveal delay={0.42}>
               <div className="mt-6">
                 <p className="eyebrow mb-3 text-[0.6rem]">Frame</p>
-                <div className="flex flex-wrap gap-3">
-                  {product.frames.map((f) => (
-                    <button
-                      key={f.code}
-                      onClick={() => setFrameCode(f.code)}
-                      className={`rounded-sm border px-4 py-2.5 text-xs transition-all duration-300 ${
-                        frameCode === f.code
-                          ? "border-silver/70 bg-white/5 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                          : "border-white/12 text-silver/70 hover:border-white/30 hover:text-foreground"
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+                <div className="inline-flex items-center gap-2.5 rounded-sm border border-silver/70 bg-white/5 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <span className="h-3 w-3 rounded-[3px] border border-white/40 bg-[#0c0c0c]" aria-hidden />
+                  <span className="text-xs font-semibold text-foreground">{product.frames[0].label}</span>
+                  <Check className="h-3.5 w-3.5 text-silver" />
                 </div>
               </div>
             </Reveal>
