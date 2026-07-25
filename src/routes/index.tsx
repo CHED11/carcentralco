@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Premium collector-grade posters inspired by the world's most legendary performance cars. Discover the Porsche 918 Spyder collector edition.",
+          "Premium collector-grade posters inspired by the world's most legendary performance cars, curated for collectors and enthusiasts.",
       },
       { property: "og:title", content: "CarCentralCo — Automotive Art For Enthusiasts" },
       {

@@ -15,7 +15,7 @@
  *  automatically. No component edits required.
  *
  *  <slug> is derived from the title:
- *    "Porsche 918 Spyder Poster"  ->  "porsche-918-spyder"
+ *    "Ferrari F40 Poster"  ->  "ferrari-f40"
  *  Name the image folder exactly that. See docs/ADDING-A-PRODUCT.md.
  * ============================================================================
  */
@@ -99,7 +99,7 @@ const DEFAULT_FEATURES = [
 /** Shown until a real poster image has been uploaded for a product. */
 export const PLACEHOLDER_POSTER = "/products/_placeholder.svg";
 
-/** "Porsche 918 Spyder Poster" -> "porsche-918-spyder" */
+/** "Ferrari F40 Poster" -> "ferrari-f40" */
 export function slugify(input: string): string {
   return input
     .normalize("NFKD")
@@ -172,28 +172,6 @@ export function defineProduct(input: ProductInput): Product {
  * ======================================================================== */
 export const products: Product[] = [
   defineProduct({
-    title: "Porsche 918 Spyder Poster",
-    division: "performance",
-    collection: "porsche",
-    basePrice: 49,
-    // image auto -> /products/porsche-918-spyder/poster.png
-    description:
-      "A collector-grade tribute to one of the greatest hybrid hypercars ever engineered. The Porsche 918 Spyder is rendered in cinematic monochrome with metallic silver detailing — designed to be the centrepiece of any enthusiast's space.",
-    specs: [
-      { label: "Top Speed", value: "345", unit: "km/h", sub: "214 mph" },
-      { label: "0–100 km/h", value: "2.6", unit: "s" },
-      { label: "System Power", value: "887", unit: "hp", sub: "@ 6,500 rpm" },
-      { label: "Engine", value: "4.6L V8", sub: "Naturally Aspirated + Electric" },
-      { label: "Torque", value: "1,280", unit: "Nm", sub: "@ 8,650 rpm" },
-      { label: "MSRP", value: "$845,000", sub: "USD" },
-    ],
-    stripe: {
-      // Framed posters only — paste one Stripe Payment Link per size:
-      // "16X20_BLACK_FRAME": "https://buy.stripe.com/...", // Standard
-      // "18X24_BLACK_FRAME": "https://buy.stripe.com/...", // Large
-    },
-  }),
-  defineProduct({
     title: "Lamborghini SVJ Poster",
     division: "performance",
     collection: "lamborghini",
@@ -259,24 +237,6 @@ export const products: Product[] = [
       { label: "Engine", value: "4.0L V8", sub: "Twin-Turbo" },
       { label: "Torque", value: "850", unit: "Nm", sub: "@ 2,250 rpm" },
       { label: "MSRP", value: "$230,000", sub: "USD" },
-    ],
-  }),
-  defineProduct({
-    title: "Lamborghini Revuelto Poster",
-    division: "premium",
-    collection: "lamborghini",
-    basePrice: 49,
-    // image auto -> /products/lamborghini-revuelto/poster.png
-    framedImage: "/products/lamborghini-revuelto/framed.png",
-    description:
-      "The new era of the Raging Bull. The Lamborghini Revuelto poster captures its futuristic design and hybrid V12 powertrain in stunning collector-grade detail.",
-    specs: [
-      { label: "Top Speed", value: "350", unit: "km/h", sub: "217 mph" },
-      { label: "0–100 km/h", value: "2.5", unit: "s" },
-      { label: "Power", value: "1,001", unit: "hp", sub: "@ 9,250 rpm" },
-      { label: "Engine", value: "6.5L V12", sub: "Naturally Aspirated + Electric" },
-      { label: "Torque", value: "725", unit: "Nm", sub: "@ 6,750 rpm" },
-      { label: "MSRP", value: "$608,000", sub: "USD" },
     ],
   }),
 ];
