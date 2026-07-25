@@ -117,7 +117,7 @@ export function Hero() {
               to="/premium"
               className="btn-luxe silver-line block w-full rounded-sm px-9 py-4 text-xs font-bold uppercase tracking-[0.25em] text-primary-foreground shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)] transition-opacity hover:opacity-95 sm:w-auto"
             >
-              Enter The Gallery
+              Explore Premium
             </Link>
           </motion.div>
           <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
