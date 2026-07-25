@@ -14,8 +14,8 @@ public/products/<slug>/poster.png
 ```
 
 The slug is the title, lowercased, without the word "Poster":
-`"Porsche 918 Spyder Poster"` → `porsche-918-spyder` →
-`public/products/porsche-918-spyder/poster.png`.
+`"Ferrari F40 Poster"` → `ferrari-f40` →
+`public/products/ferrari-f40/poster.png`.
 
 ## 2. (Optional) Upload the framed image
 

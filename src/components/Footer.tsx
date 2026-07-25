@@ -75,16 +75,6 @@ export function Footer() {
                   About
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/product/$slug"
-                  params={{ slug: "porsche-918-spyder" }}
-                  className="group inline-flex items-center gap-2 text-sm text-silver/70 transition-colors hover:text-foreground"
-                >
-                  <span className="h-px w-0 bg-silver/60 transition-all duration-300 group-hover:w-4" />
-                  The 918 Spyder
-                </Link>
-              </li>
             </ul>
           </div>
         </div>

@@ -2,13 +2,21 @@ import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Check } from "lucide-react";
-import { availableProducts, formatPrice, getStripeLink } from "@/data/products";
+import { availableProducts, formatPrice, getStripeLink, type Product } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function FeaturedProduct() {
   const product = availableProducts[0];
+  // Data-driven: the first live product is the Featured Artifact. With no live
+  // products the section is hidden entirely (no placeholder, no broken layout).
+  if (!product) return null;
+  return <FeaturedArtifact product={product} />;
+}
+
+function FeaturedArtifact({ product }: { product: Product }) {
+  const featureTitle = product.title.replace(/\s*poster\s*$/i, "").trim();
 
   const [sizeCode, setSizeCode] = useState(
     product.sizes.find((s) => s.popular)?.code ?? product.sizes[0].code,
@@ -88,7 +96,7 @@ export function FeaturedProduct() {
             </Reveal>
             <Reveal delay={0.08}>
               <h3 className="display-fluid mt-5 font-display text-4xl leading-tight text-foreground sm:text-5xl">
-                Porsche 918 Spyder
+                {featureTitle}
                 <span className="silver-text block italic">Poster</span>
               </h3>
             </Reveal>

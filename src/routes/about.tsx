@@ -48,8 +48,7 @@ function AboutPage() {
           </Reveal>
           <Reveal delay={0.35}>
             <Link
-              to="/product/$slug"
-              params={{ slug: "porsche-918-spyder" }}
+              to="/premium"
               className="silver-line mt-10 inline-block rounded-sm px-9 py-4 text-xs font-bold uppercase tracking-[0.25em] text-primary-foreground transition-opacity hover:opacity-90"
             >
               Explore The Collection

@@ -5,7 +5,7 @@ import { Reveal } from "@/components/Reveal";
 const hero = {
   quote: "It doesn't feel like a poster on the wall. It feels like a piece of the car itself.",
   name: "Marcus T.",
-  role: "Owner, Porsche 918",
+  role: "Collector",
 };
 
 const supporting = [
