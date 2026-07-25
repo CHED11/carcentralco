@@ -125,7 +125,7 @@ export function Hero() {
               to="/performance"
               className="block w-full rounded-sm border border-white/15 bg-white/[0.02] px-9 py-4 text-xs font-bold uppercase tracking-[0.25em] text-silver backdrop-blur-sm transition-all duration-300 hover:border-silver/50 hover:text-foreground sm:w-auto"
             >
-              Enter The Division
+              Explore Performance
             </Link>
           </motion.div>
         </motion.div>

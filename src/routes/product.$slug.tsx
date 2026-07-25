@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Minus, Plus, ShieldCheck, Truck, Globe, Check } from "lucide-react";
 import {
   getProductBySlug,
-  hasArtwork,
+  isLive,
   formatPrice,
   getStripeLink,
   type Product,
@@ -17,7 +17,9 @@ import { ComingSoonCard } from "@/components/ComingSoonCard";
 export const Route = createFileRoute("/product/$slug")({
   loader: ({ params }) => {
     const product = getProductBySlug(params.slug);
-    if (!product || !hasArtwork(product)) throw notFound();
+    // Not live (no artwork yet, or division on a Coming Soon hold) → 404, so
+    // no Performance product listing is reachable by direct URL.
+    if (!product || !isLive(product)) throw notFound();
     return { product };
   },
   head: ({ loaderData }) => {

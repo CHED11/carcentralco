@@ -12,6 +12,9 @@ const perfProduct = getProductsByDivision("performance")[0];
 const premiumArt = premiumProduct?.framedImage ?? premiumProduct?.image;
 const perfArt = perfProduct?.image;
 
+// Central flag (divisions.ts) — the Performance division is on a Coming Soon hold.
+const perfComingSoon = performance.comingSoon === true;
+
 /**
  * The signature moment: a scroll-pinned cinematic cross-over. The silver
  * Premium gallery dissolves into the red Performance division as you scroll
@@ -86,10 +89,24 @@ export function DivisionsSection() {
             <h2 className="perf-text display-fluid mt-6 font-display text-6xl uppercase sm:text-8xl lg:text-9xl">
               The Division
             </h2>
+            {perfComingSoon && (
+              <span className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-black/40 px-5 py-2 backdrop-blur-sm">
+                <span className="perf-line h-1.5 w-1.5 rounded-full" />
+                <span className="perf-text text-[0.6rem] font-semibold uppercase tracking-[0.35em]">
+                  Coming Soon
+                </span>
+              </span>
+            )}
             <p className="mx-auto mt-7 max-w-xl text-balance text-base leading-relaxed text-silver/70">
-              {performance.description}
+              {perfComingSoon
+                ? "A new series of performance-focused automotive artwork is currently being prepared."
+                : performance.description}
             </p>
-            <DivisionCta to="/performance" label="Enter The Division" variant="perf" />
+            <DivisionCta
+              to="/performance"
+              label={perfComingSoon ? "Explore Performance" : "Enter The Division"}
+              variant="perf"
+            />
           </div>
         </motion.div>
 
