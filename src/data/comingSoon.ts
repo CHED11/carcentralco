@@ -1,5 +1,5 @@
 import type { CollectionId, Division } from "./products";
-import { products, hasArtwork } from "./products";
+import { products, isLive } from "./products";
 import { getCollection } from "./collections";
 
 export type ComingSoonItem = {
@@ -22,9 +22,10 @@ const teasers: ComingSoonItem[] = [
   { id: "aston-valkyrie", title: "Aston Martin Valkyrie", marque: "Aston Martin", collection: "hypercar", division: "premium" },
 ];
 
-/** Products that have no real poster yet are presented as Coming Soon. */
+/** Any product that isn't live (no artwork yet, or its division is on a
+ *  Coming Soon hold) is presented as a Coming Soon placeholder. */
 const fromProducts: ComingSoonItem[] = products
-  .filter((p) => !hasArtwork(p))
+  .filter((p) => !isLive(p))
   .map((p) => ({
     id: p.id,
     title: p.title.replace(/\s*poster\s*$/i, "").trim(),

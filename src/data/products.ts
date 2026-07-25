@@ -20,6 +20,8 @@
  * ============================================================================
  */
 
+import { isDivisionComingSoon } from "./divisions";
+
 /** The two primary brand divisions. */
 export type Division = "premium" | "performance";
 
@@ -244,15 +246,25 @@ export const products: Product[] = [
 /* ----------------------------- selectors ------------------------------- */
 
 /**
- * A product is "live" only once it has real uploaded artwork. Until then it is
- * treated as Coming Soon (see comingSoon.ts) and never rendered as a buyable
- * card with a placeholder/duplicate image.
+ * A product has real (non-placeholder) uploaded artwork. This is a necessary
+ * but not sufficient condition for being sold — see `isLive`.
  */
 export const hasArtwork = (product: Product): boolean =>
   product.image.trim().length > 0 && product.image !== PLACEHOLDER_POSTER;
 
-/** Products with real artwork — these are the ones shown as product cards. */
-export const availableProducts = products.filter(hasArtwork);
+/**
+ * A product is "live" (buyable, routable, shown as a real card) only when it
+ * has artwork AND its division is not on a Coming Soon hold (see
+ * divisions.ts → `comingSoon`). Anything not live is presented as Coming Soon
+ * and its product route 404s. This is the single gate the whole storefront
+ * uses, so flipping a division's `comingSoon` flag takes products offline
+ * everywhere at once — and back — with no per-component edits.
+ */
+export const isLive = (product: Product): boolean =>
+  hasArtwork(product) && !isDivisionComingSoon(product.division);
+
+/** Live products — the ones shown as buyable product cards. */
+export const availableProducts = products.filter(isLive);
 
 export const getProductBySlug = (slug: string) =>
   products.find((p) => p.slug === slug);

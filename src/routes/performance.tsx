@@ -13,7 +13,12 @@ export const Route = createFileRoute("/performance")({
   head: () => ({
     meta: [
       { title: `${division.name} — CarCentralCo` },
-      { name: "description", content: division.description },
+      {
+        name: "description",
+        content: division.comingSoon
+          ? `${division.name} — coming soon. A new series of performance-focused automotive artwork is currently being prepared.`
+          : division.description,
+      },
       { property: "og:title", content: `${division.name} — CarCentralCo` },
       { property: "og:description", content: division.description },
     ],
@@ -21,8 +26,14 @@ export const Route = createFileRoute("/performance")({
   component: PerformancePage,
 });
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 function PerformancePage() {
-  const products = getProductsByDivision("performance");
+  // Single source of truth: divisions.ts → performance.comingSoon.
+  const comingSoon = division.comingSoon === true;
+  // While on hold, getProductsByDivision returns nothing (isLive gate), so no
+  // live product, price, size/frame selector or checkout is ever rendered.
+  const products = comingSoon ? [] : getProductsByDivision("performance");
   const featured = products[0];
   const upcoming = getComingSoonByDivision("performance");
 
@@ -50,7 +61,7 @@ function PerformancePage() {
               className="perf-text mt-5 font-display text-5xl uppercase sm:text-7xl"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 2.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.9, delay: 2.3, ease: EASE }}
             >
               {division.name}
             </motion.h1>
@@ -60,19 +71,47 @@ function PerformancePage() {
               animate={{ scaleX: 1 }}
               transition={{ duration: 0.7, delay: 2.5 }}
             />
-            <motion.p
-              className="mx-auto max-w-2xl text-base leading-relaxed text-silver/70"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 2.6 }}
-            >
-              {division.description}
-            </motion.p>
+
+            {comingSoon ? (
+              <>
+                <motion.div
+                  className="flex justify-center"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 2.55 }}
+                >
+                  <span className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-black/40 px-5 py-2 backdrop-blur-sm">
+                    <span className="perf-line h-1.5 w-1.5 rounded-full" />
+                    <span className="perf-text text-[0.6rem] font-semibold uppercase tracking-[0.35em]">
+                      Coming Soon
+                    </span>
+                  </span>
+                </motion.div>
+                <motion.p
+                  className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-silver/70"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 2.65 }}
+                >
+                  A new series of performance-focused automotive artwork is
+                  currently being prepared.
+                </motion.p>
+              </>
+            ) : (
+              <motion.p
+                className="mx-auto max-w-2xl text-base leading-relaxed text-silver/70"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 2.6 }}
+              >
+                {division.description}
+              </motion.p>
+            )}
           </div>
         </header>
 
-        {/* Featured performance product */}
-        {featured && (
+        {/* Featured performance product — only when the division is launched */}
+        {!comingSoon && featured && (
           <section className="relative py-24 sm:py-32">
             <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:px-10">
               <motion.div
@@ -80,7 +119,7 @@ function PerformancePage() {
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.8, ease: EASE }}
               >
                 <div className="perf-spotlight absolute inset-0 scale-125" />
                 <motion.img
@@ -88,7 +127,7 @@ function PerformancePage() {
                   alt={featured.title}
                   className="gallery-shadow relative w-full max-w-md rounded-sm"
                   whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.5, ease: EASE }}
                 />
               </motion.div>
 
@@ -110,7 +149,6 @@ function PerformancePage() {
                   </p>
                 </Reveal>
 
-                {/* Specs */}
                 {featured.specs && (
                   <Reveal delay={0.3}>
                     <div className="mt-9 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/5">
@@ -151,7 +189,7 @@ function PerformancePage() {
           </section>
         )}
 
-        {/* Coming soon in performance */}
+        {/* Preview of the collection — existing Coming Soon placeholders */}
         {upcoming.length > 0 && (
           <section className="relative border-t border-white/10 py-24">
             <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -160,7 +198,7 @@ function PerformancePage() {
                   More Horsepower Incoming
                 </p>
                 <h2 className="mt-3 font-display text-3xl text-foreground sm:text-4xl">
-                  Coming Soon
+                  {comingSoon ? "A First Look" : "Coming Soon"}
                 </h2>
               </Reveal>
               <div className="mt-12 grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">

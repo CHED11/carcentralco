@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Bell, ArrowUpRight } from "lucide-react";
-import { products, hasArtwork, formatPrice, type Product } from "@/data/products";
+import { products, isLive, formatPrice, type Product } from "@/data/products";
 import { getCollection } from "@/data/collections";
 import { useNotify } from "@/components/NotifyModal";
 import { Reveal } from "@/components/Reveal";
@@ -38,7 +38,7 @@ export function PopularProducts() {
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {popularProducts.map((product, i) => (
             <Reveal key={product.id} delay={(i % 3) * 0.08} y={40}>
-              {hasArtwork(product) ? (
+              {isLive(product) ? (
                 <PopularProductCard product={product} index={i} />
               ) : (
                 <ComingSoonProductCard product={product} index={i} />
