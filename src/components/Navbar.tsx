@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, Menu, X, ArrowUpRight } from "lucide-react";
 import { divisions } from "@/data/divisions";
+import { useHomepageRevealed } from "@/components/IntroExperience";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -10,6 +11,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // False only while the homepage's first-visit intro is still playing;
+  // true immediately on every other page and for returning visitors.
+  const revealed = useHomepageRevealed();
 
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
@@ -30,8 +35,11 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+    <motion.header
+      initial={{ opacity: 0, y: -24 }}
+      animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: -24 }}
+      transition={{ duration: 0.8, ease: EASE }}
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,padding] duration-500 ${
         scrolled ? "glass-nav py-3" : "border-b border-transparent py-5"
       }`}
     >
@@ -146,7 +154,7 @@ export function Navbar() {
         className="silver-line absolute bottom-0 left-0 h-px w-full origin-left opacity-70"
         aria-hidden
       />
-    </header>
+    </motion.header>
   );
 }
 

@@ -3,24 +3,32 @@ import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { useHomepageRevealed } from "@/components/IntroExperience";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const MARQUES = ["Porsche", "Lamborghini", "Ferrari", "McLaren", "Aston Martin"];
 
 /** One line of the headline, revealed from behind a mask. */
-function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function Line({
+  children,
+  delay = 0,
+  revealed,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  revealed: boolean;
+}) {
   return (
     <span className="line-mask">
       <motion.span
         className="block"
         initial={{ y: "110%" }}
-        animate={{ y: "0%" }}
+        animate={revealed ? { y: "0%" } : { y: "110%" }}
         transition={{ duration: 1.1, delay, ease: EASE }}
       >
         {children}
@@ -31,6 +39,11 @@ function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: numb
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
+  // False until the first-visit intro (see IntroExperience) has dissolved
+  // into the homepage — or immediately true for returning visitors/other
+  // pages. Drives every entrance animation below.
+  const revealed = useHomepageRevealed();
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -53,33 +66,16 @@ export function Hero() {
     my.set(((e.clientY - r.top) / r.height) * 100);
   };
 
-  // Cinematic background loop. Autoplays muted on load; falls back to the
-  // poster if autoplay is blocked, and is paused entirely for reduced-motion.
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
-  const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (reduceMotion) {
-      v.pause();
-      return;
-    }
-    v.muted = true;
-    // Some browsers reject autoplay; the poster stays visible if so.
-    v.play().catch(() => {});
-  }, [reduceMotion]);
-
   return (
     <section
       ref={ref}
       onPointerMove={onMove}
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
-      {/* Parallax cinematic background — muted autoplay loop over a poster */}
+      {/* Premium static hero background. The cinematic clip now lives only in
+          the first-visit intro (see IntroExperience) — this reuses the same
+          poster still, so the hero reads as a continuation of it. */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-30 scale-110">
-        {/* Poster: instant paint (LCP) + fallback when autoplay is blocked or reduced-motion */}
         <img
           src="/hero/hero-poster.jpg"
           alt=""
@@ -87,43 +83,41 @@ export function Hero() {
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover opacity-[0.55]"
         />
-        {/* Night street-race loop; fades in over the poster once playing */}
-        <video
-          ref={videoRef}
-          poster="/hero/hero-poster.jpg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden
-          tabIndex={-1}
-          disablePictureInPicture
-          onPlaying={() => setVideoReady(true)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-            videoReady ? "opacity-[0.55]" : "opacity-0"
-          }`}
-        >
-          <source src="/hero/hero.webm" type="video/webm" />
-          <source src="/hero/hero.mp4" type="video/mp4" />
-        </video>
-        {/* Readability scrim + existing gradient overlays (text stays legible on top) */}
         <div className="absolute inset-0 bg-black/25" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/45 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_28%,var(--color-background)_94%)]" />
       </motion.div>
 
       {/* Dynamic pointer light */}
-      <motion.div style={{ backgroundImage: light }} className="pointer-events-none absolute inset-0 -z-20" aria-hidden />
+      <motion.div
+        style={{ backgroundImage: light }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: revealed ? 1 : 0 }}
+        transition={{ duration: 1.1, ease: EASE }}
+        className="pointer-events-none absolute inset-0 -z-20"
+        aria-hidden
+      />
 
-      {/* Drifting silver orb + grain */}
-      <div className="aurora-silver animate-orb pointer-events-none absolute left-1/2 top-[32%] -z-20 h-[64vh] w-[64vh] -translate-x-1/2 rounded-full blur-2xl" aria-hidden />
-      <div className="grain pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden />
+      {/* Drifting silver orb + grain — the "particles" that fade in with the reveal */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: revealed ? 1 : 0 }}
+        transition={{ duration: 1.2, delay: 0.1, ease: EASE }}
+        className="aurora-silver animate-orb pointer-events-none absolute left-1/2 top-[32%] -z-20 h-[64vh] w-[64vh] -translate-x-1/2 rounded-full blur-2xl"
+        aria-hidden
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: revealed ? 0.05 : 0 }}
+        transition={{ duration: 1.2, ease: EASE }}
+        className="grain pointer-events-none absolute inset-0"
+        aria-hidden
+      />
 
       <motion.div style={{ y: contentY, opacity: fade }} className="relative mx-auto max-w-5xl px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
           transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
           className="mx-auto flex w-fit items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 backdrop-blur-sm"
         >
@@ -132,15 +126,17 @@ export function Hero() {
         </motion.div>
 
         <h1 className="display-fluid mt-8 font-display text-[3.5rem] font-medium leading-[0.92] tracking-tight text-foreground sm:text-8xl lg:text-[9rem]">
-          <Line delay={0.35}>ICONS,</Line>
-          <Line delay={0.48}>
+          <Line delay={0.35} revealed={revealed}>
+            ICONS,
+          </Line>
+          <Line delay={0.48} revealed={revealed}>
             <span className="silver-text italic">immortalised.</span>
           </Line>
         </h1>
 
         <motion.p
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
           transition={{ duration: 1, delay: 0.95, ease: EASE }}
           className="mx-auto mt-8 max-w-xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg"
         >
@@ -150,7 +146,7 @@ export function Hero() {
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
           transition={{ duration: 1, delay: 1.1, ease: EASE }}
           className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
@@ -177,7 +173,7 @@ export function Hero() {
       <motion.div
         style={{ opacity: fade }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: revealed ? 1 : 0 }}
         transition={{ delay: 1.3, duration: 1 }}
         className="absolute bottom-20 left-0 right-0"
       >
@@ -196,7 +192,7 @@ export function Hero() {
       {/* scroll cue */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: revealed ? 1 : 0 }}
         transition={{ delay: 1.5, duration: 1 }}
         style={{ opacity: fade }}
         className="absolute bottom-7 left-1/2 -translate-x-1/2"
