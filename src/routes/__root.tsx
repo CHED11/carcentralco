@@ -13,7 +13,7 @@ import { MotionConfig } from "framer-motion";
 import appCss from "../styles.css?url";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
-import { LoadingScreen } from "../components/LoadingScreen";
+import { IntroExperience } from "../components/IntroExperience";
 import { NotifyProvider } from "../components/NotifyModal";
 
 function NotFoundComponent() {
@@ -145,13 +145,14 @@ function RootComponent() {
           while keeping subtle opacity fades for a still-premium feel. */}
       <MotionConfig reducedMotion="user">
         <NotifyProvider>
-          <LoadingScreen />
-          <Navbar />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <main className="min-h-screen">
-            <Outlet />
-          </main>
-          <Footer />
+          <IntroExperience>
+            <Navbar />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <main className="min-h-screen">
+              <Outlet />
+            </main>
+            <Footer />
+          </IntroExperience>
         </NotifyProvider>
       </MotionConfig>
     </QueryClientProvider>
