@@ -3,12 +3,12 @@ import {
   motion,
   useMotionTemplate,
   useMotionValue,
+  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useRef } from "react";
-import heroAtmosphere from "@/assets/hero-atmosphere.jpg";
+import { useEffect, useRef, useState } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const MARQUES = ["Porsche", "Lamborghini", "Ferrari", "McLaren", "Aston Martin"];
@@ -53,20 +53,62 @@ export function Hero() {
     my.set(((e.clientY - r.top) / r.height) * 100);
   };
 
+  // Cinematic background loop. Autoplays muted on load; falls back to the
+  // poster if autoplay is blocked, and is paused entirely for reduced-motion.
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (reduceMotion) {
+      v.pause();
+      return;
+    }
+    v.muted = true;
+    // Some browsers reject autoplay; the poster stays visible if so.
+    v.play().catch(() => {});
+  }, [reduceMotion]);
+
   return (
     <section
       ref={ref}
       onPointerMove={onMove}
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
-      {/* Parallax atmospheric background */}
+      {/* Parallax cinematic background — muted autoplay loop over a poster */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-30 scale-110">
+        {/* Poster: instant paint (LCP) + fallback when autoplay is blocked or reduced-motion */}
         <img
-          src={heroAtmosphere}
+          src="/hero/hero-poster.jpg"
           alt=""
+          aria-hidden
           fetchPriority="high"
-          className="h-full w-full object-cover opacity-50"
+          className="absolute inset-0 h-full w-full object-cover opacity-[0.55]"
         />
+        {/* Night street-race loop; fades in over the poster once playing */}
+        <video
+          ref={videoRef}
+          poster="/hero/hero-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+          tabIndex={-1}
+          disablePictureInPicture
+          onPlaying={() => setVideoReady(true)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+            videoReady ? "opacity-[0.55]" : "opacity-0"
+          }`}
+        >
+          <source src="/hero/hero.webm" type="video/webm" />
+          <source src="/hero/hero.mp4" type="video/mp4" />
+        </video>
+        {/* Readability scrim + existing gradient overlays (text stays legible on top) */}
+        <div className="absolute inset-0 bg-black/25" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/45 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_28%,var(--color-background)_94%)]" />
       </motion.div>
